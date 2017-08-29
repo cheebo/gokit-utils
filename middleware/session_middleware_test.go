@@ -173,7 +173,7 @@ func TestSession(t *testing.T) {
 		"jti": string(session.SessionState_Error),
 		"user": jwtUser,
 	}
-	mware = middleware.Session(mockedSession, session.NoVerify)(e)
+	mware = middleware.Session(nil, session.NoVerify)(e)
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
 	_, err = mware(ctx, struct{}{})
 	assert.NoError(err)
