@@ -37,22 +37,24 @@ func Session(sess session.Session, verify session.SessionVerification) endpoint.
 				return nil, rest.ErrorInternal("Internal error")
 			}
 
-			state, err := sess.Verify(user.Id, jti.(string), verify)
-			if err != nil {
-				return nil, kitjwt.ErrTokenNotActive
-			}
+			if verify != session.NoVerify {
+				state, err := sess.Verify(user.Id, jti.(string), verify)
+				if err != nil {
+					return nil, kitjwt.ErrTokenNotActive
+				}
 
-			switch state {
-			case session.SessionState_Locked:
-				return "", rest.ErrorLocked()
-			case session.SessionState_Error:
-				return "", rest.ErrorInternal("Internal error")
-			case session.SessionState_Blocked:
-				return "", rest.AccessForbidden()
-			case session.SessionState_Expired:
-				return "", rest.AccessForbidden()
-			case session.SessionState_Closed:
-				return "", rest.AccessForbidden()
+				switch state {
+				case session.SessionState_Locked:
+					return "", rest.ErrorLocked()
+				case session.SessionState_Error:
+					return "", rest.ErrorInternal("Internal error")
+				case session.SessionState_Blocked:
+					return "", rest.AccessForbidden()
+				case session.SessionState_Expired:
+					return "", rest.AccessForbidden()
+				case session.SessionState_Closed:
+					return "", rest.AccessForbidden()
+				}
 			}
 
 			ctx = context.WithValue(ctx, JwtUserKey, user)

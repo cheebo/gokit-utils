@@ -166,4 +166,15 @@ func TestSession(t *testing.T) {
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
 	_, err = mware(ctx, struct{}{})
 	assert.EqualError(err, rest.ErrorInternal("Internal error").Error())
+
+
+	// NoVerify
+	claims = jwt.MapClaims{
+		"jti": string(session.SessionState_Error),
+		"user": jwtUser,
+	}
+	mware = middleware.Session(mockedSession, session.NoVerify)(e)
+	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
+	_, err = mware(ctx, struct{}{})
+	assert.NoError(err)
 }
