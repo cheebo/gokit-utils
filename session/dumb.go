@@ -12,14 +12,14 @@ func NewDumbSession() Session {
 	return &redisSession{}
 }
 
-func (r dumbSession) Save(userId string, jti string, state SessionState, exp time.Duration) error {
+func (r dumbSession) Save(jti string, state SessionState, exp time.Duration) error {
 	return nil
 }
 
-func (r dumbSession) Delete(userId string, jti string) error {
+func (r dumbSession) Delete(jti string) error {
 	return nil
 }
 
-func (r dumbSession) Verify(userId string, jti string, verify SessionVerification) (SessionState, error) {
+func (r dumbSession) Verify(jti string, verify SessionVerification) (SessionState, error) {
 	return SessionState_Active, nil
 }

@@ -10,15 +10,20 @@ import (
 
 	"github.com/cheebo/gokit-utils/session"
 	"github.com/cheebo/gokit-utils/middleware"
-	"github.com/cheebo/gokit-utils/entity"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/cheebo/gorest"
 )
 
+type JwtUser struct {
+	Id            string
+	Name          string
+	Email         string
+}
+
 var (
-	jwtUser = entity.JwtUser{
+	jwtUser = JwtUser{
 		Id: "100",
 		Name: "John Doe",
 		Email: "jhondoe@example.com",
@@ -28,17 +33,15 @@ var (
 type sessionMock struct {
 	mock.Mock
 }
-func (s sessionMock) Save(userId string, jti string, state session.SessionState, exp time.Duration) error {
+func (s sessionMock) Save(jti string, state session.SessionState, exp time.Duration) error {
 	return nil
 }
-func (s sessionMock) Delete(userId string, jti string) error {
+func (s sessionMock) Delete(jti string) error {
 	return nil
 }
-func (s sessionMock) Verify(userId string, jti string, verify session.SessionVerification) (session.SessionState, error) {
+func (s sessionMock) Verify(jti string, verify session.SessionVerification) (session.SessionState, error) {
 	return session.SessionState(jti), nil
 }
-
-
 
 func TestSession(t *testing.T) {
 	assert := assert.New(t)
@@ -108,7 +111,7 @@ func TestSession(t *testing.T) {
 
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
 	ctx1, err := mware(ctx, struct{}{})
-	ctxUser, ok := ctx1.(context.Context).Value(middleware.JwtUserKey).(entity.JwtUser)
+	ctxUser, ok := ctx1.(context.Context).Value(middleware.JwtUserKey).(JwtUser)
 	if !ok {
 		t.Fatal("Claims were not passed into context correctly")
 	}

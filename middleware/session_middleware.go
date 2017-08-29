@@ -3,7 +3,6 @@ package middleware
 import (
 	"context"
 
-	"github.com/cheebo/gokit-utils/entity"
 	session "github.com/cheebo/gokit-utils/session"
 	rest "github.com/cheebo/gorest"
 	jwt "github.com/dgrijalva/jwt-go"
@@ -28,17 +27,13 @@ func Session(sess session.Session, verify session.SessionVerification) endpoint.
 				return nil, rest.ErrorInternal("Internal error")
 			}
 
-			userString, ok := claims["user"]
-			if !ok {
-				return nil, rest.ErrorInternal("Internal error")
-			}
-			user, ok := userString.(entity.JwtUser)
+			user, ok := claims["user"]
 			if !ok {
 				return nil, rest.ErrorInternal("Internal error")
 			}
 
 			if verify != session.NoVerify {
-				state, err := sess.Verify(user.Id, jti.(string), verify)
+				state, err := sess.Verify(jti.(string), verify)
 				if err != nil {
 					return nil, kitjwt.ErrTokenNotActive
 				}

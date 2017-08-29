@@ -22,7 +22,7 @@ const (
 
 
 type Session interface {
-	Save(userId string, jti string, state SessionState, exp time.Duration) error
-	Delete(userId string, jti string) error
-	Verify(userId string, jti string, verify SessionVerification) (SessionState, error)
+	Save(jti string, state SessionState, exp time.Duration) error
+	Delete(jti string) error
+	Verify(jti string, verify SessionVerification) (SessionState, error)
 }
