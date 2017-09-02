@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	jwToken = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZ28ta2l0In0.14M2VmYyApdSlV_LZ88ajjwuaLeIFplB8JpyNy0A19E"
+	jwTokenUrl = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZ28ta2l0In0.14M2VmYyApdSlV_LZ88ajjwuaLeIFplB8JpyNy0A19E"
 )
 
 func TestJwtUrlToHTTPContext(t *testing.T) {
@@ -32,11 +32,11 @@ func TestJwtUrlToHTTPContext(t *testing.T) {
 	}
 
 	// URL value is correct
-	u, _ = url.Parse("http://exmaple.com/?"+middleware.JwtUrlParam+"="+jwToken)
+	u, _ = url.Parse("http://exmaple.com/?"+middleware.JwtUrlParam+"="+jwTokenUrl)
 	ctx = reqFunc(context.Background(), &http.Request{URL: u})
 
 	token := ctx.Value(jwt.JWTTokenContextKey).(string)
-	if token != jwToken {
-		t.Errorf("Context doesn't contain the expected encoded token value; expected: %s, got: %s", jwToken, token)
+	if token != jwTokenUrl {
+		t.Errorf("Context doesn't contain the expected encoded token value; expected: %s, got: %s", jwTokenUrl, token)
 	}
 }

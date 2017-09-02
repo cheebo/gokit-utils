@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	jwToken = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZ28ta2l0In0.14M2VmYyApdSlV_LZ88ajjwuaLeIFplB8JpyNy0A19E"
+	jwTokenCookie = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImtpZCIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiZ28ta2l0In0.14M2VmYyApdSlV_LZ88ajjwuaLeIFplB8JpyNy0A19E"
 )
 
 func TestJwtCookieToHTTPContext(t *testing.T) {
@@ -25,7 +25,7 @@ func TestJwtCookieToHTTPContext(t *testing.T) {
 	// When the cookie has the value
 	cookie := http.Cookie{
 		Name: middleware.JwtCookieName,
-		Value: jwToken,
+		Value: jwTokenCookie,
 	}
 
 	req := http.Request{
@@ -35,8 +35,8 @@ func TestJwtCookieToHTTPContext(t *testing.T) {
 	ctx = reqFunc(context.Background(), &req)
 
 	token := ctx.Value(jwt.JWTTokenContextKey).(string)
-	if token != jwToken {
-		t.Errorf("Context doesn't contain the expected encoded token value; expected: %s, got: %s", jwToken, token)
+	if token != jwTokenCookie {
+		t.Errorf("Context doesn't contain the expected encoded token value; expected: %s, got: %s", jwTokenCookie, token)
 	}
 
 }
