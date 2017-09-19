@@ -6,10 +6,10 @@ import (
 )
 
 type redisSession struct {
-	client *redis.Client
+	client redis.UniversalClient
 }
 
-func NewRedisSession(client *redis.Client) Session {
+func NewRedisSession(client redis.UniversalClient) Session {
 	return &redisSession{
 		client: client,
 	}
