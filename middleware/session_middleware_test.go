@@ -73,7 +73,7 @@ func TestSession(t *testing.T) {
 
 	// Bad claims without jti claims passed
 	badClaims = jwt.MapClaims{
-		"user": jwtUser,
+		middleware.JwtClaimsUserKey: jwtUser,
 	}
 
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
@@ -104,14 +104,14 @@ func TestSession(t *testing.T) {
 	// Good claims, session active
 	claims := jwt.MapClaims{
 		"jti": string(session.SessionState_Active),
-		"user": jwtUser,
+		middleware.JwtClaimsUserKey: jwtUser,
 	}
 
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
 
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
 	ctx1, err := mware(ctx, struct{}{})
-	ctxUser, ok := ctx1.(context.Context).Value(middleware.JwtUserKey).(JwtUser)
+	ctxUser, ok := ctx1.(context.Context).Value(middleware.JwtUserContextKey).(JwtUser)
 	if !ok {
 		t.Fatal("Claims were not passed into context correctly")
 	}
@@ -123,7 +123,7 @@ func TestSession(t *testing.T) {
 	// LOCKED
 	claims = jwt.MapClaims{
 		"jti": string(session.SessionState_Locked),
-		"user": jwtUser,
+		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
@@ -133,7 +133,7 @@ func TestSession(t *testing.T) {
 	// Blocked
 	claims = jwt.MapClaims{
 		"jti": string(session.SessionState_Blocked),
-		"user": jwtUser,
+		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
@@ -143,7 +143,7 @@ func TestSession(t *testing.T) {
 	// Blocked
 	claims = jwt.MapClaims{
 		"jti": string(session.SessionState_Expired),
-		"user": jwtUser,
+		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
@@ -153,7 +153,7 @@ func TestSession(t *testing.T) {
 	// Closed
 	claims = jwt.MapClaims{
 		"jti": string(session.SessionState_Closed),
-		"user": jwtUser,
+		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
@@ -163,7 +163,7 @@ func TestSession(t *testing.T) {
 	// Error
 	claims = jwt.MapClaims{
 		"jti": string(session.SessionState_Error),
-		"user": jwtUser,
+		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
@@ -174,7 +174,7 @@ func TestSession(t *testing.T) {
 	// NoVerify
 	claims = jwt.MapClaims{
 		"jti": string(session.SessionState_Error),
-		"user": jwtUser,
+		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(nil, session.NoVerify)(e)
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
