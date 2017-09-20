@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	JwtUserKey = "JwtUserKey"
+	JwtUserContextKey = "JwtUserKey"
+	JwtClaimsUserKey = "user"
 )
 
 func Session(sess session.Session, verify session.SessionVerification) endpoint.Middleware {
@@ -27,7 +28,7 @@ func Session(sess session.Session, verify session.SessionVerification) endpoint.
 				return nil, rest.ErrorInternal("Internal error")
 			}
 
-			user, ok := claims["user"]
+			user, ok := claims[JwtClaimsUserKey]
 			if !ok {
 				return nil, rest.ErrorInternal("Internal error")
 			}
@@ -52,7 +53,7 @@ func Session(sess session.Session, verify session.SessionVerification) endpoint.
 				}
 			}
 
-			ctx = context.WithValue(ctx, JwtUserKey, user)
+			ctx = context.WithValue(ctx, JwtUserContextKey, user)
 
 			return next(ctx, request)
 		}
