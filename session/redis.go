@@ -15,6 +15,14 @@ func NewRedisSession(client redis.UniversalClient) Session {
 	}
 }
 
+func (r redisSession) Get(jti string) (SessionState, error) {
+	state, err := r.client.Get(jti).Result()
+	if err != nil {
+		return SessionState_Error, err
+	}
+	return SessionState(state), nil
+}
+
 func (r redisSession) Save(jti string, state SessionState, exp time.Duration) error {
 	return r.client.Set(jti, string(state), exp).Err()
 }

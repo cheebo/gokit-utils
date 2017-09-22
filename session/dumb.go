@@ -12,6 +12,10 @@ func NewDumbSession() Session {
 	return &redisSession{}
 }
 
+func (r dumbSession) Get(jti string) (SessionState, error) {
+	return SessionState_Active, nil
+}
+
 func (r dumbSession) Save(jti string, state SessionState, exp time.Duration) error {
 	return nil
 }
