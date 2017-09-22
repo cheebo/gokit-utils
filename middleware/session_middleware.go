@@ -41,7 +41,7 @@ func Session(sess session.Session, verify session.SessionVerification) endpoint.
 
 				switch state {
 				case session.SessionState_Locked:
-					return "", rest.ErrorLocked()
+					return "", rest.ErrorLocked("Locked")
 				case session.SessionState_Error:
 					return "", rest.ErrorInternal("Internal error")
 				case session.SessionState_Blocked:
