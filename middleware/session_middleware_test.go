@@ -5,27 +5,27 @@ import (
 	"testing"
 	"time"
 
-	kitjwt "github.com/go-kit/kit/auth/jwt"
 	jwt "github.com/dgrijalva/jwt-go"
+	kitjwt "github.com/go-kit/kit/auth/jwt"
 
-	"github.com/cheebo/gokit-utils/session"
 	"github.com/cheebo/gokit-utils/middleware"
+	"github.com/cheebo/gokit-utils/session"
 
+	"github.com/cheebo/gorest"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
-	"github.com/cheebo/gorest"
 )
 
 type JwtUser struct {
-	Id            string
-	Name          string
-	Email         string
+	Id    string
+	Name  string
+	Email string
 }
 
 var (
 	jwtUser = JwtUser{
-		Id: "100",
-		Name: "John Doe",
+		Id:    "100",
+		Name:  "John Doe",
 		Email: "jhondoe@example.com",
 	}
 )
@@ -33,14 +33,15 @@ var (
 type sessionMock struct {
 	mock.Mock
 }
-func (s sessionMock) Save(jti string, state session.SessionState, exp time.Duration) error {
+
+func (s sessionMock) Save(jti string, state session.State, exp time.Duration) error {
 	return nil
 }
 func (s sessionMock) Delete(jti string) error {
 	return nil
 }
-func (s sessionMock) Verify(jti string, verify session.SessionVerification) (session.SessionState, error) {
-	return session.SessionState(jti), nil
+func (s sessionMock) Verify(jti string, verify session.SessionVerification) (session.State, error) {
+	return session.State(jti), nil
 }
 
 func TestSession(t *testing.T) {
@@ -58,8 +59,6 @@ func TestSession(t *testing.T) {
 	assert.Error(err, "Session should return an error")
 	assert.EqualError(err, rest.ErrorInternal("Internal error").Error())
 
-
-
 	// Bad claims passed
 	badClaims := jwt.MapClaims{}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
@@ -68,8 +67,6 @@ func TestSession(t *testing.T) {
 
 	assert.Error(err, "Session should return an error")
 	assert.EqualError(err, rest.ErrorInternal("Internal error").Error())
-
-
 
 	// Bad claims without jti claims passed
 	badClaims = jwt.MapClaims{
@@ -84,11 +81,9 @@ func TestSession(t *testing.T) {
 	assert.Error(err, "Session should return an error")
 	assert.EqualError(err, rest.ErrorInternal("Internal error").Error())
 
-
-
 	// Bad claims without user, but with jti claims passed
 	badClaims = jwt.MapClaims{
-		"jti": string(session.SessionState_Active),
+		"jti": string(session.State_Active),
 	}
 
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
@@ -99,11 +94,9 @@ func TestSession(t *testing.T) {
 	assert.Error(err, "Session should return an error")
 	assert.EqualError(err, rest.ErrorInternal("Internal error").Error())
 
-
-
 	// Good claims, session active
 	claims := jwt.MapClaims{
-		"jti": string(session.SessionState_Active),
+		"jti": string(session.State_Active),
 		middleware.JwtClaimsUserKey: jwtUser,
 	}
 
@@ -118,11 +111,9 @@ func TestSession(t *testing.T) {
 
 	assert.Equal(jwtUser, ctxUser)
 
-
-
 	// LOCKED
 	claims = jwt.MapClaims{
-		"jti": string(session.SessionState_Locked),
+		"jti": string(session.State_Locked),
 		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
@@ -132,7 +123,7 @@ func TestSession(t *testing.T) {
 
 	// Blocked
 	claims = jwt.MapClaims{
-		"jti": string(session.SessionState_Blocked),
+		"jti": string(session.State_Blocked),
 		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
@@ -142,7 +133,7 @@ func TestSession(t *testing.T) {
 
 	// Blocked
 	claims = jwt.MapClaims{
-		"jti": string(session.SessionState_Expired),
+		"jti": string(session.State_Expired),
 		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
@@ -152,7 +143,7 @@ func TestSession(t *testing.T) {
 
 	// Closed
 	claims = jwt.MapClaims{
-		"jti": string(session.SessionState_Closed),
+		"jti": string(session.State_Closed),
 		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
@@ -162,7 +153,7 @@ func TestSession(t *testing.T) {
 
 	// Error
 	claims = jwt.MapClaims{
-		"jti": string(session.SessionState_Error),
+		"jti": string(session.State_Error),
 		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
@@ -170,10 +161,9 @@ func TestSession(t *testing.T) {
 	_, err = mware(ctx, struct{}{})
 	assert.EqualError(err, rest.ErrorInternal("Internal error").Error())
 
-
 	// NoVerify
 	claims = jwt.MapClaims{
-		"jti": string(session.SessionState_Error),
+		"jti": string(session.State_Error),
 		middleware.JwtClaimsUserKey: jwtUser,
 	}
 	mware = middleware.Session(nil, session.NoVerify)(e)

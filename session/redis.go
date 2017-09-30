@@ -2,6 +2,7 @@ package session
 
 import (
 	"github.com/go-redis/redis"
+	"github.com/pkg/errors"
 	"time"
 )
 
@@ -15,15 +16,18 @@ func NewRedisSession(client redis.UniversalClient) Session {
 	}
 }
 
-func (r redisSession) Get(jti string) (SessionState, error) {
+func (r redisSession) Get(jti string) (State, error) {
 	state, err := r.client.Get(jti).Result()
 	if err != nil {
-		return SessionState_Error, err
+		if err.Error() == "EOF" {
+			err = errors.New(NothingFound)
+		}
+		return State_Error, err
 	}
-	return SessionState(state), nil
+	return State(state), nil
 }
 
-func (r redisSession) Save(jti string, state SessionState, exp time.Duration) error {
+func (r redisSession) Save(jti string, state State, exp time.Duration) error {
 	return r.client.Set(jti, string(state), exp).Err()
 }
 
@@ -31,15 +35,15 @@ func (r redisSession) Delete(jti string) error {
 	return r.client.Del(jti).Err()
 }
 
-func (r redisSession) Verify(jti string, verify SessionVerification) (SessionState, error) {
+func (r redisSession) Verify(jti string, verify SessionVerification) (State, error) {
 	switch verify {
 	case WhiteList:
 		state, err := r.client.Get(jti).Result()
 		if err != nil {
-			return SessionState_Error, err
+			return State_Error, err
 		}
-		return SessionState(state), nil
+		return State(state), nil
 	default:
-		return SessionState_Active, nil
+		return State_Active, nil
 	}
 }

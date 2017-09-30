@@ -12,7 +12,7 @@ import (
 
 const (
 	JwtUserContextKey = "JwtUserKey"
-	JwtClaimsUserKey = "user"
+	JwtClaimsUserKey  = "user"
 )
 
 func Session(sess session.Session, verify session.SessionVerification) endpoint.Middleware {
@@ -40,15 +40,15 @@ func Session(sess session.Session, verify session.SessionVerification) endpoint.
 				}
 
 				switch state {
-				case session.SessionState_Locked:
+				case session.State_Locked:
 					return "", rest.ErrorLocked("Locked")
-				case session.SessionState_Error:
+				case session.State_Error:
 					return "", rest.ErrorInternal("Internal error")
-				case session.SessionState_Blocked:
+				case session.State_Blocked:
 					return "", rest.AccessForbidden()
-				case session.SessionState_Expired:
+				case session.State_Expired:
 					return "", rest.AccessForbidden()
-				case session.SessionState_Closed:
+				case session.State_Closed:
 					return "", rest.AccessForbidden()
 				}
 			}
