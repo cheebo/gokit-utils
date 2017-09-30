@@ -1,4 +1,4 @@
-package middleware
+package middleware_test
 
 import (
 	"context"
@@ -34,6 +34,9 @@ type sessionMock struct {
 	mock.Mock
 }
 
+func (s sessionMock) Get(jti string) (session.State, error) {
+	return session.State_Active, nil
+}
 func (s sessionMock) Save(jti string, state session.State, exp time.Duration) error {
 	return nil
 }
@@ -119,7 +122,7 @@ func TestSession(t *testing.T) {
 	mware = middleware.Session(mockedSession, session.WhiteList)(e)
 	ctx = context.WithValue(context.Background(), kitjwt.JWTClaimsContextKey, claims)
 	_, err = mware(ctx, struct{}{})
-	assert.EqualError(err, rest.ErrorLocked().Error())
+	assert.EqualError(err, rest.ErrorLocked("").Error())
 
 	// Blocked
 	claims = jwt.MapClaims{
