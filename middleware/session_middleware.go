@@ -36,7 +36,7 @@ func Session(sess session.Session, verify session.SessionVerification) endpoint.
 			if verify != session.NoVerify {
 				state, err := sess.Verify(jti.(string), verify)
 				if err != nil {
-					return nil, kitjwt.ErrTokenNotActive
+					return nil, rest.ErrorInternal("Internal error")
 				}
 
 				switch state {
